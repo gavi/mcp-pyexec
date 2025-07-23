@@ -20,9 +20,8 @@ auth = BearerAuthProvider(
 # Initialize FastMCP server for IPython execution
 mcp = FastMCP("ipython-executor", auth=auth)
 
-# Add auth debugging
-@mcp.on_session_start()
-async def on_session_start(session):
+# Add auth debugging in the tool
+async def log_auth_info(session):
     logger.info(f"Session started with auth: {session.access_token is not None}")
     if session.access_token:
         logger.info(f"Token client_id: {session.access_token.client_id}")
@@ -62,7 +61,7 @@ async def execute_with_timeout(process, code: str, timeout: int):
         await kill_process_tree(process)
         raise Exception(f"Process exceeded maximum execution time of {timeout} seconds")
 
-@mcp.tool(scopes=["python:execute"])
+@mcp.tool()
 async def execute_python(code: str, session_id: str = "default") -> ToolResult:
     """Execute Python code in a Docker container with IPython-like behavior
     
