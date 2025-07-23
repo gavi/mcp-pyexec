@@ -7,6 +7,7 @@ import json
 import base64
 from fastmcp import FastMCP
 from fastmcp.tools.tool import ToolResult
+from fastmcp.tools.requests import get_http_request, get_http_headers
 from mcp.types import TextContent, ImageContent
 from fastmcp.server.auth import BearerAuthProvider
 
@@ -79,6 +80,25 @@ async def execute_python(code: str, session_id: str = "default") -> ToolResult:
         - execute_python("import matplotlib.pyplot as plt\nplt.plot([1,2,3])\nplt.show()")
     """
     try:
+        # Log incoming bearer token for debugging
+        try:
+            request = get_http_request()
+            auth_header = request.headers.get("authorization", "No Authorization header")
+            logger.info(f"=== AUTH DEBUG ===")
+            logger.info(f"Authorization header: {auth_header}")
+            
+            headers = get_http_headers(include_all=True)
+            logger.info(f"All headers: {headers}")
+            
+            # Log client info
+            if request.client:
+                logger.info(f"Client IP: {request.client.host}")
+            logger.info(f"Request URL: {request.url}")
+            logger.info(f"Request method: {request.method}")
+            logger.info(f"=== END AUTH DEBUG ===")
+        except Exception as e:
+            logger.error(f"Error getting request info: {str(e)}")
+
         if not code or not code.strip():
             return ToolResult(content=[TextContent(type="text", text="Error: No Python code provided")])
 
