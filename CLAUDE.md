@@ -45,6 +45,42 @@ uv sync
 uv add package-name
 ```
 
+## Authentication
+
+The server implements bearer token authentication with the following features:
+
+### Configuration Options
+
+**Environment Variables:**
+- `MCP_JWKS_URI`: JWKS endpoint URL for production
+- `MCP_ISSUER`: Token issuer (required with JWKS_URI)
+- `MCP_AUDIENCE`: Token audience (default: "mcp-pyexec")
+- `MCP_ALGORITHM`: JWT algorithm (default: "RS256")
+- `MCP_PUBLIC_KEY_PATH`: Path to RSA public key file (default: "dev_public_key.pem")
+
+### Development Mode
+
+When no JWKS URI is provided, the server operates in development mode:
+1. Generates RSA key pair automatically
+2. Creates `dev_public_key.pem` and `dev_private_key.pem`
+3. Generates development token in `dev_token.txt`
+4. Uses static public key for validation
+
+### Required Scopes
+
+- `python:execute`: Required for the `execute_python` tool
+- Tokens without proper scopes will be rejected
+
+### Production Setup
+
+For production use with external identity provider:
+```bash
+export MCP_JWKS_URI="https://your-provider.com/.well-known/jwks.json"
+export MCP_ISSUER="https://your-provider.com/"
+export MCP_AUDIENCE="mcp-pyexec"
+uv run fastmcp run ipython_server.py
+```
+
 ## Session Management
 
 The server supports persistent sessions via the `session_id` parameter. Each session gets its own directory under `sessions/` that is mounted into containers, allowing variables and state to persist across executions within the same session.

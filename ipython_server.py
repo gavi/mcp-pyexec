@@ -8,9 +8,15 @@ import base64
 from fastmcp import FastMCP
 from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent, ImageContent
+from fastmcp.server.auth import BearerAuthProvider
+
+
+auth = BearerAuthProvider(
+    jwks_uri="https://idp.objectgraph.com/.well-known/jwks.json"
+)
 
 # Initialize FastMCP server for IPython execution
-mcp = FastMCP("ipython-executor")
+mcp = FastMCP("ipython-executor", auth=auth)
 
 # IPython execution constants
 PROCESS_TIMEOUT_SECONDS = 30  # Maximum execution time for IPython code

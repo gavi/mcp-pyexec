@@ -1,3 +1,11 @@
+# Development authentication files
+dev_private_key.pem
+dev_public_key.pem
+dev_token.txt
+
+# Session data
+sessions/
+
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -8,3 +16,19 @@ wheels/
 
 # Virtual environments
 .venv
+.env
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
