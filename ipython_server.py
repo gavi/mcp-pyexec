@@ -12,7 +12,9 @@ from fastmcp.server.auth import BearerAuthProvider
 
 
 auth = BearerAuthProvider(
-    jwks_uri="https://idp.objectgraph.com/.well-known/jwks.json"
+    jwks_uri="https://idp.objectgraph.com/.well-known/jwks.json",
+    issuer="https://idp.objectgraph.com/",
+    audience="mcp-pyexec"
 )
 
 # Initialize FastMCP server for IPython execution
