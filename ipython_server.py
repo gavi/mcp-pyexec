@@ -9,16 +9,6 @@ from fastmcp import FastMCP, Context
 from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent, ImageContent
 from fastmcp.server.auth import BearerAuthProvider
-import inspect
-
-public_key_pem = inspect.cleandoc(
-"""
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEp69X3UcEO3X5aRtOs9dnhiUiOYck
-Q6eTXUssCFy2HDKbrFwoWOaRfX8qDFdJdvyLERJGRBzAGqggpAjwvj7TWw==
------END PUBLIC KEY-----
-"""
-)
 
 auth = BearerAuthProvider(
     jwks_uri="https://idp.objectgraph.com/.well-known/jwks.json",
@@ -29,40 +19,6 @@ auth = BearerAuthProvider(
 # Initialize FastMCP server for IPython execution
 mcp = FastMCP("ipython-executor", auth=auth)
 
-# Add middleware to log all incoming requests
-async def log_requests(request, call_next):
-    logger.info(f"=== INCOMING REQUEST ===")
-    logger.info(f"Method: {request.method}")
-    logger.info(f"URL: {request.url}")
-    logger.info(f"Headers: {dict(request.headers)}")
-    
-    # Specifically log the Authorization header
-    auth_header = request.headers.get("authorization", "MISSING")
-    logger.info(f"Authorization header: {auth_header}")
-    
-    if request.client:
-        logger.info(f"Client: {request.client.host}:{request.client.port}")
-    
-    logger.info(f"=== END REQUEST LOG ===")
-    
-    response = await call_next(request)
-    
-    logger.info(f"=== RESPONSE ===")
-    logger.info(f"Status: {response.status_code}")
-    logger.info(f"=== END RESPONSE ===")
-    
-    return response
-
-# Add the middleware to the FastMCP instance
-mcp.add_middleware(log_requests)
-
-# Add auth debugging in the tool
-async def log_auth_info(session):
-    logger.info(f"Session started with auth: {session.access_token is not None}")
-    if session.access_token:
-        logger.info(f"Token client_id: {session.access_token.client_id}")
-        logger.info(f"Token scopes: {session.access_token.scopes}")
-        logger.info(f"Token expires_at: {session.access_token.expires_at}")
 
 # IPython execution constants
 PROCESS_TIMEOUT_SECONDS = 30  # Maximum execution time for IPython code
