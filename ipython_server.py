@@ -18,6 +18,33 @@ auth = BearerAuthProvider(
 # Initialize FastMCP server for IPython execution
 mcp = FastMCP("ipython-executor", auth=auth)
 
+# Add middleware to log all incoming requests
+async def log_requests(request, call_next):
+    logger.info(f"=== INCOMING REQUEST ===")
+    logger.info(f"Method: {request.method}")
+    logger.info(f"URL: {request.url}")
+    logger.info(f"Headers: {dict(request.headers)}")
+    
+    # Specifically log the Authorization header
+    auth_header = request.headers.get("authorization", "MISSING")
+    logger.info(f"Authorization header: {auth_header}")
+    
+    if request.client:
+        logger.info(f"Client: {request.client.host}:{request.client.port}")
+    
+    logger.info(f"=== END REQUEST LOG ===")
+    
+    response = await call_next(request)
+    
+    logger.info(f"=== RESPONSE ===")
+    logger.info(f"Status: {response.status_code}")
+    logger.info(f"=== END RESPONSE ===")
+    
+    return response
+
+# Add the middleware to the FastMCP instance
+mcp.add_middleware(log_requests)
+
 # Add auth debugging in the tool
 async def log_auth_info(session):
     logger.info(f"Session started with auth: {session.access_token is not None}")
