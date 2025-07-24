@@ -5,9 +5,8 @@ import traceback
 import logging
 import json
 import base64
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 from fastmcp.tools.tool import ToolResult
-from fastmcp.tools.requests import get_http_request, get_http_headers
 from mcp.types import TextContent, ImageContent
 from fastmcp.server.auth import BearerAuthProvider
 
@@ -61,7 +60,7 @@ async def execute_with_timeout(process, code: str, timeout: int):
         raise Exception(f"Process exceeded maximum execution time of {timeout} seconds")
 
 @mcp.tool()
-async def execute_python(code: str, session_id: str = "default") -> ToolResult:
+async def execute_python(ctx: Context, code: str, session_id: str = "default") -> ToolResult:
     """Execute Python code in a Docker container with IPython-like behavior
     
     This tool allows execution of arbitrary Python code in a secure Docker container.
@@ -82,13 +81,14 @@ async def execute_python(code: str, session_id: str = "default") -> ToolResult:
     try:
         # Log incoming bearer token for debugging
         try:
-            request = get_http_request()
+            request = ctx.get_http_request()
             auth_header = request.headers.get("authorization", "No Authorization header")
             logger.info(f"=== AUTH DEBUG ===")
             logger.info(f"Authorization header: {auth_header}")
             
-            headers = get_http_headers(include_all=True)
-            logger.info(f"All headers: {headers}")
+            # Log all headers
+            headers_dict = dict(request.headers)
+            logger.info(f"All headers: {headers_dict}")
             
             # Log client info
             if request.client:
