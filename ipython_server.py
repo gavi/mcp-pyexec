@@ -21,7 +21,9 @@ Q6eTXUssCFy2HDKbrFwoWOaRfX8qDFdJdvyLERJGRBzAGqggpAjwvj7TWw==
 )
 
 auth = BearerAuthProvider(
-    public_key=public_key_pem
+    jwks_uri="https://idp.objectgraph.com/.well-known/jwks.json",
+    algorithm="ES256",
+    issuer="https://idp.objectgraph.com"
 )
 
 # Initialize FastMCP server for IPython execution
