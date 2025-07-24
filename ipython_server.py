@@ -9,10 +9,19 @@ from fastmcp import FastMCP, Context
 from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent, ImageContent
 from fastmcp.server.auth import BearerAuthProvider
+import inspect
 
+public_key_pem = inspect.cleandoc(
+"""
+-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEp69X3UcEO3X5aRtOs9dnhiUiOYck
+Q6eTXUssCFy2HDKbrFwoWOaRfX8qDFdJdvyLERJGRBzAGqggpAjwvj7TWw==
+-----END PUBLIC KEY-----
+"""
+)
 
 auth = BearerAuthProvider(
-    jwks_uri="https://idp.objectgraph.com/.well-known/jwks.json"
+    public_key=public_key_pem
 )
 
 # Initialize FastMCP server for IPython execution
