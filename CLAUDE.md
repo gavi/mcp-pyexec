@@ -81,9 +81,6 @@ export MCP_AUDIENCE="mcp-pyexec"
 uv run fastmcp run ipython_server.py
 ```
 
-## Session Management
-
-The server supports persistent sessions via the `session_id` parameter. Each session gets its own directory under `sessions/` that is mounted into containers, allowing variables and state to persist across executions within the same session.
 
 ## Security Features
 

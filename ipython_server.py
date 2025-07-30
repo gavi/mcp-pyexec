@@ -1,10 +1,8 @@
 import asyncio
 import uuid
-import os
 import traceback
 import logging
 import json
-import base64
 from fastmcp import FastMCP, Context
 from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent, ImageContent
@@ -54,15 +52,15 @@ async def execute_with_timeout(process, code: str, timeout: int):
         raise Exception(f"Process exceeded maximum execution time of {timeout} seconds")
 
 @mcp.tool()
-async def execute_python(ctx: Context, code: str, session_id: str = "default") -> ToolResult:
+async def execute_python(ctx: Context, code: str) -> ToolResult:
     """Execute Python code in a Docker container with IPython-like behavior
     
     This tool allows execution of arbitrary Python code in a secure Docker container.
     The code runs with resource limits and network isolation for safety.
+    All the code including imports should be in one code.
     
     Args:
         code: Python code to execute (supports multi-line code, imports, data analysis, etc.)
-        session_id: Optional session identifier for persistent state between executions
         
     Returns:
         Execution results including output, errors, and any generated data
@@ -96,7 +94,7 @@ async def execute_python(ctx: Context, code: str, session_id: str = "default") -
         if not code or not code.strip():
             return ToolResult(content=[TextContent(type="text", text="Error: No Python code provided")])
 
-        logger.info(f"Received Python execution request for session: {session_id}")
+        logger.info(f"Received Python execution request")
 
         # Generate a unique container name
         container_name = f"ipython-exec-{uuid.uuid4()}"
@@ -112,14 +110,6 @@ async def execute_python(ctx: Context, code: str, session_id: str = "default") -
             '-i',
         ]
 
-        # Add volume mount for session persistence if needed
-        session_dir = os.path.abspath(f'sessions/{session_id}')
-        if not os.path.exists(session_dir):
-            os.makedirs(session_dir, exist_ok=True)
-        
-        docker_args.extend([
-            '-v', f"{session_dir}:/home/user/session"
-        ])
 
         # Use the custom IPython executor image
         docker_args.append('ipython-executor')
